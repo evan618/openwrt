@@ -13,7 +13,7 @@ define KernelPackage/pwm-mediatek-ramips
 	CONFIG_PWM_MEDIATEK_RAMIPS \
 	CONFIG_PWM_SYSFS=y
   FILES:= \
-	$(LINUX_DIR)/drivers/pwm/pwm-mediatek-ramips.ko
+	drivers/pwm/pwm-mediatek-ramips.ko
   AUTOLOAD:=$(call AutoProbe,pwm-mediatek-ramips)
 endef
 
@@ -32,7 +32,7 @@ define KernelPackage/sdhci-mt7620
 	CONFIG_MTK_AEE_KDUMP=n \
 	CONFIG_MTK_MMC_CD_POLL=n
   FILES:= \
-	$(LINUX_DIR)/drivers/mmc/host/mtk-mmc/mtk_sd.ko
+	drivers/mmc/host/mtk-mmc/mtk_sd.ko
   AUTOLOAD:=$(call AutoProbe,mtk_sd,1)
 endef
 
@@ -79,8 +79,8 @@ define KernelPackage/dma-ralink
 	CONFIG_DMADEVICES=y \
 	CONFIG_RALINK_GDMA
   FILES:= \
-	$(LINUX_DIR)/drivers/dma/virt-dma.ko \
-	$(LINUX_DIR)/drivers/dma/ralink-gdma.ko
+	drivers/dma/virt-dma.ko \
+	drivers/dma/ralink-gdma.ko
   AUTOLOAD:=$(call AutoLoad,52,ralink-gdma)
 endef
 
@@ -98,8 +98,8 @@ define KernelPackage/hsdma-mtk
 	CONFIG_DMADEVICES=y \
 	CONFIG_MTK_HSDMA
   FILES:= \
-	$(LINUX_DIR)/drivers/dma/virt-dma.ko \
-	$(LINUX_DIR)/drivers/dma/mediatek/hsdma-mt7621.ko
+	drivers/dma/virt-dma.ko \
+	drivers/dma/mediatek/hsdma-mt7621.ko
   AUTOLOAD:=$(call AutoLoad,53,hsdma-mt7621)
 endef
 
@@ -118,9 +118,9 @@ define KernelPackage/sound-mt7620
 	CONFIG_SND_SIMPLE_CARD \
 	CONFIG_SND_SIMPLE_CARD_UTILS
   FILES:= \
-	$(LINUX_DIR)/sound/soc/ralink/snd-soc-ralink-i2s.ko \
-	$(LINUX_DIR)/sound/soc/generic/snd-soc-simple-card.ko \
-	$(LINUX_DIR)/sound/soc/generic/snd-soc-simple-card-utils.ko
+	sound/soc/ralink/snd-soc-ralink-i2s.ko \
+	sound/soc/generic/snd-soc-simple-card.ko \
+	sound/soc/generic/snd-soc-simple-card-utils.ko
   AUTOLOAD:=$(call AutoLoad,90,snd-soc-ralink-i2s snd-soc-simple-card)
   $(call AddDepends/sound)
 endef
