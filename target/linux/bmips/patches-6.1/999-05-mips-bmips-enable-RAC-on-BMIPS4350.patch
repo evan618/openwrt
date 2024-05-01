@@ -1,0 +1,48 @@
+From 9f87b9c0bb6555b8af568f03ce26d874356e4254 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Daniel=20Gonz=C3=A1lez=20Cabanelas?= <dgcbueu@gmail.com>
+Date: Sun, 18 Jun 2023 19:59:25 +0200
+Subject: [PATCH 5/5] mips: bmips: enable RAC on BMIPS4350
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The data RAC is left disabled by the bootloader in some SoCs, at least in
+the core it boots from.
+Enabling this feature increases the performance up to +30% depending on the
+task.
+
+Signed-off-by: Daniel González Cabanelas <dgcbueu@gmail.com>
+Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
+[ rework code and reduce code duplication ]
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ arch/mips/kernel/smp-bmips.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/arch/mips/kernel/smp-bmips.c b/arch/mips/kernel/smp-bmips.c
+index 6048c471b5ee..2276fd9aabf2 100644
+--- a/arch/mips/kernel/smp-bmips.c
++++ b/arch/mips/kernel/smp-bmips.c
+@@ -617,6 +617,19 @@ void bmips_cpu_setup(void)
+ 		__raw_readl(bmips_cbr_addr + BMIPS_RAC_ADDRESS_RANGE);
+ 		break;
+ 
++	case CPU_BMIPS4350:
++		u32 rac_addr = BMIPS_RAC_CONFIG_1;
++
++		if (!(read_c0_brcm_cmt_local() & (1 << 31)))
++			rac_addr = BMIPS_RAC_CONFIG;
++
++		/* Enable data RAC */
++		cfg = __raw_readl(bmips_cbr_addr + rac_addr);
++		__raw_writel(cfg | 0xa, bmips_cbr_addr + rac_addr);
++		__raw_readl(bmips_cbr_addr + rac_addr);
++
++		break;
++
+ 	case CPU_BMIPS4380:
+ 		/* CBG workaround for early BMIPS4380 CPUs */
+ 		switch (read_c0_prid()) {
+-- 
+2.43.0
+

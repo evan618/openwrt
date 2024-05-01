@@ -44,6 +44,8 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		mips-hpt-frequency = <200000000>;
+		mips-cbr-reg = <0xff400000>;
+		mips-broken-cbr-reg;
 
 		cpu@0 {
 			compatible = "brcm,bmips4350", "mips,mips4Kc";
