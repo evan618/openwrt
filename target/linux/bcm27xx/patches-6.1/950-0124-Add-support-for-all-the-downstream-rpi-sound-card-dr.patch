@@ -1499,7 +1499,7 @@ Signed-off-by: Ashish Vara <ashishhvara@gmail.com>
 +zidoo	Shenzhen Zidoo Technology Co., Ltd.
 +zii	Zodiac Inflight Innovations
 +zte	ZTE Corp.
-+zyxel	ZyXEL Communications Corp.
++zyxel	Zyxel Communications Corp.
 --- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
 +++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
 @@ -188,6 +188,8 @@ patternProperties:
