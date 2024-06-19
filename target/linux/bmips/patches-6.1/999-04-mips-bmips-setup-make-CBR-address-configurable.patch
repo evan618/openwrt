@@ -1,0 +1,78 @@
+From 29a43960c9419a1c224f65adecd201a6a45c174e Mon Sep 17 00:00:00 2001
+From: Christian Marangi <ansuelsmth@gmail.com>
+Date: Wed, 1 May 2024 18:24:09 +0200
+Subject: [PATCH 4/5] mips: bmips: setup: make CBR address configurable
+
+Add support to provide CBR address from DT to handle broken
+SoC/Bootloader that doesn't correctly init it. This permits to use the
+RAC flush even in these condition.
+
+To provide a CBR address from DT, the property "mips-cbr-reg" needs to
+be set in the "cpus" node. On DT init, this property presence will be
+checked and will set the bmips_cbr_addr value accordingly. Also
+bmips_rac_flush_disable will be set to false as RAC flush can be
+correctly supported.
+
+The CBR address from DT will be applied only if the CBR address from the
+registers is 0, if the CBR address from the registers is not 0 and
+is not equal to the one set in DT (if provided) a WARN is printed.
+
+To ALWAYS overwrite the CBR address the additional property
+"mips-broken-cbr-reg" needs to be set.
+
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
+ arch/mips/bmips/setup.c | 30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
+
+diff --git a/arch/mips/bmips/setup.c b/arch/mips/bmips/setup.c
+index 97c83ca7e2f7..a4f537aa0426 100644
+--- a/arch/mips/bmips/setup.c
++++ b/arch/mips/bmips/setup.c
+@@ -34,7 +34,11 @@
+ #define REG_BCM6328_OTP		((void __iomem *)CKSEG1ADDR(0x1000062c))
+ #define BCM6328_TP1_DISABLED	BIT(9)
+ 
+-/* CBR addr doesn't change and we can cache it */
++/*
++ * CBR addr doesn't change and we can cache it.
++ * For broken SoC/Bootloader CBR addr might also be provided via DT
++ * with "mips-cbr-reg" in the "cpus" node.
++ */
+ void __iomem *bmips_cbr_addr;
+ extern bool bmips_rac_flush_disable;
+ 
+@@ -211,8 +215,28 @@ void __init device_tree_init(void)
+ 
+ 	/* Disable SMP boot unless both CPUs are listed in DT and !disabled */
+ 	np = of_find_node_by_name(NULL, "cpus");
+-	if (np && of_get_available_child_count(np) <= 1)
+-		bmips_smp_enabled = 0;
++	if (np) {
++		u32 addr;
++
++		if (of_get_available_child_count(np) <= 1)
++			bmips_smp_enabled = 0;
++
++		/* Check if DT provide a CBR address */
++		if (!of_property_read_u32(np, "mips-cbr-reg", &addr)) {
++			if (!of_property_read_bool(np, "mips-broken-cbr-reg") &&
++			    bmips_cbr_addr && addr != (u32)bmips_cbr_addr) {
++				WARN(1, "register CBR %x differ from DT CBR %x. Ignoring DT CBR.\n",
++				     (u32)bmips_cbr_addr, addr);
++				goto exit;
++			}
++
++			bmips_cbr_addr = (void __iomem *)addr;
++			/* Since CBR is provided by DT, enable RAC flush */
++			bmips_rac_flush_disable = false;
++		}
++	}
++
++exit:
+ 	of_node_put(np);
+ }
+ 
+-- 
+2.43.0
+
